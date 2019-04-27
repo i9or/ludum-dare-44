@@ -1,6 +1,7 @@
 import "phaser";
 import { ILifecycle } from "./Lifecycle";
 import background from "../../assets/images/background.png";
+import spritesheet from "../../assets/images/spritesheet.png";
 
 export class LoadingScene extends Phaser.Scene implements ILifecycle {
   constructor() {
@@ -29,13 +30,16 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     });
 
     this.load.image("background", background);
+    this.load.spritesheet("spritesheet", spritesheet);
   }
 
   public create(): void {
-    console.log('LoadingScene: CREATE');
+// tslint:disable-next-line: no-console
+    console.log("LoadingScene: CREATE");
   }
 
   public update(time: number, delta: number): void {
-    console.log('LoadingScene: UPDATE');
+// tslint:disable-next-line: no-console
+    console.log("LoadingScene: UPDATE");
   }
 }
