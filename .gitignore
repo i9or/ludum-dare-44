@@ -63,3 +63,4 @@ typings/
 .vscode/
 .cache/
 dist/
+.DS_Store
