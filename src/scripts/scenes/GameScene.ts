@@ -6,8 +6,12 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   public map: Phaser.Tilemaps.Tilemap;
   public tileset: Phaser.Tilemaps.Tileset;
   public groundLayer: Phaser.Tilemaps.DynamicTilemapLayer;
-  public keys: { jump: Phaser.Input.Keyboard.Key };
-  public player: Phaser.Physics.Arcade.Sprite;
+  public player: Phaser.Physics.Matter.Sprite;
+  public keys: Phaser.Input.Keyboard.CursorKeys;
+  public playerController: any;
+  private oldVelocityX: number;
+  private targetVelocityX: number;
+  private newVelocityX: number;
 
   constructor() {
     super({
@@ -21,41 +25,104 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
   public create(): void {
     this.music = this.sound.add("mainTheme");
-    this.music.play("", {
-      loop: true
-    });
+    // this.music.play("", {
+    //   loop: true
+    // });
 
     this.map = this.make.tilemap({
       key: "world1"
     });
     this.tileset = this.map.addTilesetImage("spritesheet", "spritesheet");
 
-    this.groundLayer = this.map.createDynamicLayer(
-      "Tile Layer 1",
-      this.tileset,
+    this.groundLayer = this.map.createDynamicLayer(0, this.tileset, 0, 0);
+    this.map.setCollisionFromCollisionGroup(true, true);
+
+    const world = this.matter.world.convertTilemapLayer(this.groundLayer);
+
+    world.setBounds(this.map.widthInPixels, this.map.heightInPixels);
+    world.createDebugGraphic();
+    world.drawDebug = true;
+
+    this.playerController = {
+      blocked: {
+        left: false,
+        right: false,
+        bottom: false
+      },
+      numTouching: {
+        left: 0,
+        right: 0,
+        bottom: 0
+      },
+      sensors: {
+        bottom: null,
+        left: null,
+        right: null
+      },
+      time: {
+        leftDown: 0,
+        rightDown: 0
+      },
+      lastJumpedAt: 0,
+      speed: {
+        run: 7,
+        jump: 10
+      }
+    };
+
+    this.player = this.matter.add.sprite(150, 1000, "hero");
+
+    this.player.setPosition(200, 1100);
+    this.player.setBounce(0.7);
+    this.player.setCircle(32, {});
+
+    this.keys = this.input.keyboard.createCursorKeys();
+
+    this.cameras.main.setBounds(
       0,
-      0
+      0,
+      this.map.widthInPixels,
+      this.map.heightInPixels
     );
-
-    this.groundLayer.setCollisionByExclusion([-1]);
-    this.physics.world.bounds.width = this.groundLayer.width;
-    this.physics.world.bounds.height = this.groundLayer.height;
-
-    // this.add.tileSprite(0, 4000, this.groundLayer.width, 720, "backgroundA");
-
-    this.cameras.main.centerOnX(650);
-    this.cameras.main.centerOnY(4200);
-
-    this.player = this.physics.add.sprite(200, 4150, "hero");
-    this.player.setBounce(0.2);
-    this.player.setCollideWorldBounds(true);
-
-    this.physics.add.collider(this.groundLayer, this.player);
-
+    this.cameras.main.startFollow(this.player);
+    this.cameras.main.setBackgroundColor("#ccddff");
+    this.cameras.main.roundPixels = true;
   }
 
   public update(time: number, delta: number): void {
-    // tslint:disable-next-line:no-console
-    console.info("Nothing to update here...");
+    if (this.keys.left.isDown /*&& !this.playerController.blocked.left*/) {
+      // smoothedControls.moveLeft(delta);
+      // matterSprite.anims.play('left', true);
+
+      this.oldVelocityX = this.player.body.velocity.x;
+      this.targetVelocityX = -this.playerController.speed.run;
+      this.newVelocityX = Phaser.Math.Linear(
+        this.oldVelocityX,
+        this.targetVelocityX,
+        1 /*-smoothedControls.value*/
+      );
+
+      this.player.setVelocityX(this.newVelocityX);
+    } else if (this.keys.right.isDown /*&& !playerController.blocked.right*/) {
+      //     smoothedControls.moveRight(delta);
+      //     matterSprite.anims.play('right', true);
+
+      //     // Lerp the velocity towards the max run using the smoothed controls. This simulates a
+      //     // player controlled acceleration.
+      this.oldVelocityX = this.player.body.velocity.x;
+      this.targetVelocityX = this.playerController.speed.run;
+      this.newVelocityX = Phaser.Math.Linear(
+        this.oldVelocityX,
+        this.targetVelocityX,
+        1 /*smoothedControls.value*/
+      );
+
+      this.player.setVelocityX(this.newVelocityX);
+    }
+    // else
+    // {
+    //     smoothedControls.reset();
+    //     matterSprite.anims.play('idle', true);
+    // }
   }
 }

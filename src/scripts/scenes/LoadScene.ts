@@ -5,7 +5,7 @@ import backgroundA from "../../assets/images/bg_forest_a.png";
 import backgroundB from "../../assets/images/bg_forest_b.png";
 import backgroundC from "../../assets/images/bg_forest_c.png";
 
-import world1 from "../../assets/tiles/world1.json";
+import world1 from "../../assets/tiles/world2.json";
 import spritesheet from "../../assets/images/spritesheet.png";
 
 import hero from "../../assets/images/hero.png";

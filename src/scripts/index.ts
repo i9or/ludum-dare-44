@@ -6,12 +6,13 @@ import { GameScene } from "./scenes/GameScene";
 const config: GameConfig = {
   width: 1280,
   height: 720,
-  type: Phaser.WEBGL,
+  type: Phaser.AUTO,
   parent: "content",
   physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { y: 800 },
+    default: "matter",
+    matter: {
+      gravity: { y: 1 },
+      enableSleep: false,
       debug: true
     }
   },
