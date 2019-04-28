@@ -10,9 +10,6 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   public player: Phaser.Physics.Matter.Sprite;
   public keys: Phaser.Input.Keyboard.CursorKeys;
   public playerState: any;
-  private bottomSensor: Phaser.Physics.Matter.Sprite;
-  private leftSensor: Phaser.Physics.Matter.Sprite;
-  private rightSensor: Phaser.Physics.Matter.Sprite;
   private smoothControls: SmoothHorizontalControl;
 
   constructor() {
@@ -65,29 +62,22 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       },
       lastJumpedAt: 0,
       speed: {
-        run: 10,
+        run: 7,
         jump: 10
       }
     };
 
     const playerBody = Phaser.Physics.Matter.Matter.Bodies.circle(0, 0, 32, {
-      friction: 0.4,
-      restitution: 0.05
+      friction: 0.3,
+      restitution: 0.09
     });
-
-    // const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
-    //   parts: [playerBody, this.playerState.sensors.bottom],
-    //   friction: 0.4,
-    //   restitution: 0.05
-    // });
 
     this.player = this.matter.add.sprite(0, 0, "hero");
 
-    // this.player.setBounce(0.7);
+    this.player.setBounce(0.7);
     this.player.setExistingBody(playerBody);
+    this.player.setMass(10);
     this.player.setPosition(250, 1300);
-
-    this.initPlayerSensors();
 
     // KEYBOARD
     this.keys = this.input.keyboard.createCursorKeys();
@@ -98,7 +88,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.map.widthInPixels,
       this.map.heightInPixels
     );
-    this.cameras.main.startFollow(this.player);
+    this.smoothCameraFollow(this.player);
+    // this.cameras.main.startFollow(this.player);
     this.cameras.main.setBackgroundColor("#ccddff");
     this.cameras.main.roundPixels = true;
 
@@ -117,32 +108,26 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.matter.world.on(
       "collisionactive",
       (event: Phaser.Physics.Matter.Events.CollisionActiveEvent) => {
-        const bottom = this.bottomSensor.body;
-        const left = this.leftSensor.body;
-        const right = this.rightSensor.body;
-
         // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < event.pairs.length; i++) {
           const bodyA = event.pairs[i].bodyA;
           const bodyB = event.pairs[i].bodyB;
 
-          if (bodyA === this.player.body || bodyB === this.player.body) {
-            continue;
-          } else if (bodyA === bottom || bodyB === bottom) {
-            // tslint:disable-next-line:no-console
-            this.playerState.numTouching.bottom += 1;
-          } else if (
-            (bodyA === left && bodyB.isStatic) ||
-            (bodyB === left && bodyA.isStatic)
+          if (
+            (bodyA === this.player.body && bodyB.isStatic) ||
+            (bodyB === this.player.body && bodyA.isStatic)
           ) {
-            this.playerState.numTouching.left += 1;
-            console.log("left", Date.now());
-          } else if (
-            (bodyA === right && bodyB.isStatic) ||
-            (bodyB === right && bodyA.isStatic)
-          ) {
-            this.playerState.numTouching.right += 1;
-            console.log("right", Date.now());
+            const collisionNormal = event.pairs[i].collision.normal;
+
+            const epsilon = 0.8;
+
+            if (Phaser.Math.Vector2.DOWN.dot(collisionNormal) > epsilon) {
+              this.playerState.numTouching.bottom += 1;
+            } else if (Phaser.Math.Vector2.LEFT.dot(collisionNormal) > 0.8) {
+              this.playerState.numTouching.left += 1;
+            } else if (Phaser.Math.Vector2.RIGHT.dot(collisionNormal) > 0.8) {
+              this.playerState.numTouching.right += 1;
+            }
           }
         }
       }
@@ -162,13 +147,11 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
 
   public update(time: number, delta: number): void {
-    this.updatePlayerSensors();
-
     let oldVelocityX;
     let targetVelocityX;
     let newVelocityX;
 
-    if (this.keys.left.isDown /*&& !this.playerState.blocked.left*/) {
+    if (this.keys.left.isDown && !this.playerState.blocked.left) {
       this.smoothControls.moveLeft(delta);
 
       oldVelocityX = this.player.body.velocity.x;
@@ -180,7 +163,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       );
 
       this.player.setVelocityX(newVelocityX);
-    } else if (this.keys.right.isDown /*&& !this.playerState.blocked.right*/) {
+    } else if (this.keys.right.isDown && !this.playerState.blocked.right) {
       this.smoothControls.moveRight(delta);
 
       oldVelocityX = this.player.body.velocity.x;
@@ -196,42 +179,29 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.smoothControls.reset();
     }
 
-    const canJump = time - this.playerState.lastJumpedAt > 250;
+    const jumpDelta = time - this.playerState.lastJumpedAt;
 
-    if (this.keys.up.isDown && canJump) {
-      if (this.playerState.blocked.bottom) {
+    if (this.keys.up.isDown) {
+      if (this.playerState.blocked.bottom && jumpDelta > 250) {
         this.player.setVelocityY(-this.playerState.speed.jump);
+        this.playerState.lastJumpedAt = time;
+      } else if (this.playerState.blocked.left && jumpDelta > 1000) {
+        this.player.setVelocityY(-this.playerState.speed.jump);
+        this.player.setVelocityX(this.playerState.speed.run);
+        this.playerState.lastJumpedAt = time;
+      } else if (this.playerState.blocked.right && jumpDelta > 1000) {
+        this.player.setVelocityY(-this.playerState.speed.jump);
+        this.player.setVelocityX(-this.playerState.speed.run);
         this.playerState.lastJumpedAt = time;
       }
     }
+
+    this.smoothCameraFollow(this.player, 0.9);
   }
 
-  private initPlayerSensors(): void {
-    this.bottomSensor = this.matter.add.sprite(0, 0, "alphaPixel");
-    this.bottomSensor.setRectangle(10, 4, {
-      isSensor: true,
-      iniertia: Infinity
-    });
-
-    this.leftSensor = this.matter.add.sprite(0, 0, "alphaPixel");
-    this.leftSensor.setRectangle(4, 10, {
-      isSensor: true,
-      iniertia: Infinity
-    });
-
-    this.rightSensor = this.matter.add.sprite(0, 0, "alphaPixel");
-    this.rightSensor.setRectangle(4, 10, {
-      isSensor: true,
-      iniertia: Infinity
-    });
-  }
-
-  private updatePlayerSensors(): void {
-    const px = this.player.body.position.x;
-    const py = this.player.body.position.y;
-
-    this.bottomSensor.setPosition(px, py + 34);
-    this.leftSensor.setPosition(px - 34, py);
-    this.rightSensor.setPosition(px + 34, py);
+  private smoothCameraFollow(target, smoothFactor = 0) {
+    const cam = this.cameras.main;
+    cam.scrollX = smoothFactor * cam.scrollX + (1 - smoothFactor) * (target.x - cam.width * 0.5);
+    cam.scrollY = smoothFactor * cam.scrollY + (1 - smoothFactor) * (target.y - cam.height * 0.5);
   }
 }
