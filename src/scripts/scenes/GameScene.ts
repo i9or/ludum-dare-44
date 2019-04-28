@@ -8,7 +8,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   public groundLayer: Phaser.Tilemaps.DynamicTilemapLayer;
   public player: Phaser.Physics.Matter.Sprite;
   public keys: Phaser.Input.Keyboard.CursorKeys;
-  public playerController: any;
+  public playerState: any;
   private oldVelocityX: number;
   private targetVelocityX: number;
   private newVelocityX: number;
@@ -39,11 +39,11 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     const world = this.matter.world.convertTilemapLayer(this.groundLayer);
 
-    world.setBounds(this.map.widthInPixels, this.map.heightInPixels);
+    world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
     world.createDebugGraphic();
     world.drawDebug = true;
 
-    this.playerController = {
+    this.playerState = {
       blocked: {
         left: false,
         right: false,
@@ -70,11 +70,13 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       }
     };
 
+    const playerBody = Phaser.Physics.Matter.Matter.Bodies.circle(200, 1350, 32);
+
     this.player = this.matter.add.sprite(150, 1000, "hero");
 
-    this.player.setPosition(200, 1100);
     this.player.setBounce(0.7);
-    this.player.setCircle(32, {});
+    // this.player.setCircle(32, {});
+    this.player.setExistingBody(playerBody);
 
     this.keys = this.input.keyboard.createCursorKeys();
 
@@ -95,7 +97,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       // matterSprite.anims.play('left', true);
 
       this.oldVelocityX = this.player.body.velocity.x;
-      this.targetVelocityX = -this.playerController.speed.run;
+      this.targetVelocityX = -this.playerState.speed.run;
       this.newVelocityX = Phaser.Math.Linear(
         this.oldVelocityX,
         this.targetVelocityX,
@@ -110,7 +112,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       //     // Lerp the velocity towards the max run using the smoothed controls. This simulates a
       //     // player controlled acceleration.
       this.oldVelocityX = this.player.body.velocity.x;
-      this.targetVelocityX = this.playerController.speed.run;
+      this.targetVelocityX = this.playerState.speed.run;
       this.newVelocityX = Phaser.Math.Linear(
         this.oldVelocityX,
         this.targetVelocityX,
@@ -124,5 +126,11 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     //     smoothedControls.reset();
     //     matterSprite.anims.play('idle', true);
     // }
+
+    const canJump = time - this.playerState.lastJumpedAt > 250;
+
+    if (this.keys.up.isDown && canJump) {
+      this.player.setVelocityY(-this.playerState.speed.jump);
+    }
   }
 }
