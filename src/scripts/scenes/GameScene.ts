@@ -31,24 +31,22 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     });
 
     this.smoothControls = new SmoothHorizontalControl(0.0005);
-    this.totalCoinsLife = 9;
   }
 
   public preload(): void {
-    // tslint:disable-next-line:no-console
-    console.log("Nothing to preload");
+    this.totalCoinsLife = 1;
   }
 
   public create(): void {
     this.music = this.sound.add("mainThemeMusic");
-    this.music.play("", {
-      loop: true
-    });
+    // this.music.play("", {
+    //   loop: true
+    // });
 
     this.ambient = this.sound.add("ambientThemeMusic");
-    this.ambient.play("", {
-      loop: true
-    });
+    // this.ambient.play("", {
+    //   loop: true
+    // });
 
     this.jumpSound = this.sound.add("jumpSound");
     this.dropSoundA = this.sound.add("dropSoundA");
@@ -113,7 +111,12 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     const world = this.matter.world.convertTilemapLayer(this.groundLayer);
 
-    world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+    world.setBounds(
+      0,
+      0,
+      this.map.widthInPixels,
+      this.map.heightInPixels + 500
+    );
     world.createDebugGraphic();
     world.drawDebug = true;
 
@@ -168,7 +171,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.player.setExistingBody(playerBody);
     // this.player.setBounce(0.2);
     this.player.setMass(9);
-    this.player.setPosition(1400, 1700);
+    this.player.setPosition(1400, 100);
 
     // KEYBOARD
     this.keys = this.input.keyboard.createCursorKeys();
@@ -242,9 +245,9 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
               this.totalCoinsLife -= lifeLost;
               this.updateHp();
 
-              if (lifeLost > 0) {
+              if (lifeLost > 1) {
                 if (this.totalCoinsLife > 0) {
-                this.dropSoundA.play();
+                  this.dropSoundA.play();
                 } else {
                   this.dropSoundB.play();
                 }
@@ -284,6 +287,14 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     );
 
     this.totalCoinsLifeText.setScrollFactor(0);
+
+    this.line = this.add.graphics();
+
+    this.input.addDownCallback(function() {
+      if (this.game.sound.context.state === "suspended") {
+        this.game.sound.context.resume();
+      }
+    });
   }
 
   public update(time: number, delta: number): void {
@@ -356,6 +367,15 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     this.forestA.tilePositionX = this.cameras.main.scrollX * 0.8;
     this.forestB.tilePositionX = this.cameras.main.scrollX * 0.9;
+
+    this.line.clear();
+    this.line.lineStyle(2, 0xff0000);
+    this.line.lineBetween(
+      this.player.body.position.x,
+      this.player.body.position.y,
+      this.player.body.position.x + this.player.body.velocity.x * 10,
+      this.player.body.position.y + this.player.body.velocity.y * 10
+    );
   }
 
   private smoothCameraFollow(target, smoothFactor = 0) {
@@ -369,6 +389,12 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
 
   private updateHp() {
-    this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
+    if (this.totalCoinsLife > 0) {
+      this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
+    } else {
+      // Go to death scene
+      this.totalCoinsLifeText.setText(`HP: 0`);
+      this.scene.start("DeathScene");
+    }
   }
 }

@@ -2,6 +2,7 @@ import "phaser";
 import { LoadingScene } from "./scenes/LoadScene";
 import { MainMenuScene } from "./scenes/MainMenuScene";
 import { GameScene } from "./scenes/GameScene";
+import { DeathScene } from "./scenes/DeathScene";
 
 const config: GameConfig = {
   width: 1280,
@@ -19,7 +20,8 @@ const config: GameConfig = {
   scene: [
     LoadingScene,
     MainMenuScene,
-    GameScene
+    GameScene,
+    DeathScene,
   ]
 };
 
