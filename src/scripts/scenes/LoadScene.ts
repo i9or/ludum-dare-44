@@ -3,9 +3,10 @@ import { ILifecycle } from "./Lifecycle";
 
 import alphaPixel from "../../assets/images/pixel.png";
 
-import backgroundA from "../../assets/images/bg_forest_a.png";
-import backgroundB from "../../assets/images/bg_forest_b.png";
-import backgroundC from "../../assets/images/bg_forest_c.png";
+import backgroundZero from "../../assets/images/bg_0.png";
+import backgroundClouds from "../../assets/images/bg_clouds.png";
+import backgroundA from "../../assets/images/bg_forest_back.png";
+import backgroundB from "../../assets/images/bg_forest_front.png";
 
 import world1 from "../../assets/tiles/world2.json";
 import spritesheet from "../../assets/images/spritesheet.png";
@@ -45,9 +46,10 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
 
     this.load.image("alphaPixel", alphaPixel);
 
-    this.load.image("backgroundA", backgroundA);
-    this.load.image("backgroundB", backgroundB);
-    this.load.image("backgroundC", backgroundC);
+    this.load.image("backgroundZero", backgroundZero);
+    this.load.image("backgroundClouds", backgroundClouds);
+    this.load.image("forestA", backgroundA);
+    this.load.image("forestB", backgroundB);
     this.load.spritesheet("spritesheet", spritesheet, {
       frameWidth: 128,
       frameHeight: 128

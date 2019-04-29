@@ -16,6 +16,9 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   private coinsLayer: Phaser.GameObjects.GameObject[];
   private coins: Phaser.Physics.Matter.Sprite[] = [];
   private heroFlyHeight: any;
+  private cloudsBack: Phaser.GameObjects.TileSprite;
+  private forestA: Phaser.GameObjects.TileSprite;
+  forestB: Phaser.GameObjects.TileSprite;
 
   constructor() {
     super({
@@ -40,6 +43,52 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.map = this.make.tilemap({
       key: "world1"
     });
+
+    // ===========
+    // BACKGROUNDS
+    // ===========
+
+    const levelW = this.map.widthInPixels;
+    const levelH = this.map.heightInPixels;
+    const camW = this.cameras.main.width;
+    const camH = this.cameras.main.height;
+
+    const skyImage = this.add.image(1280 / 2, 720 / 2, "backgroundZero");
+    // skyImage.setDisplaySize(this.map.widthInPixels, this.map.heightInPixels);
+    skyImage.setScrollFactor(0);
+
+    const cloudsW = 1280;
+    const cloudsH = 409;
+
+    this.cloudsBack = this.add.tileSprite(
+      camW / 2,
+      camH / 2 - 100,
+      cloudsW,
+      cloudsH,
+      "backgroundClouds"
+    );
+    this.cloudsBack.setScrollFactor(0);
+
+    this.forestA = this.add.tileSprite(
+      camW / 2,
+      levelH - 720 / 2,
+      1280,
+      720,
+      "forestA"
+    );
+
+    this.forestA.setScrollFactor(0, 1);
+
+    this.forestB = this.add.tileSprite(
+      camW / 2,
+      levelH - 720 / 2,
+      1280,
+      720,
+      "forestB"
+    );
+
+    this.forestB.setScrollFactor(0, 1);
+
     this.tileset = this.map.addTilesetImage("spritesheet", "spritesheet");
 
     this.groundLayer = this.map.createDynamicLayer("World", this.tileset, 0, 0);
@@ -104,7 +153,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.player.setBounce(1);
     this.player.setExistingBody(playerBody);
     this.player.setMass(9);
-    this.player.setPosition(250, 100);
+    this.player.setPosition(850, 1700);
 
     // KEYBOARD
     this.keys = this.input.keyboard.createCursorKeys();
@@ -116,8 +165,6 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.map.heightInPixels
     );
     this.smoothCameraFollow(this.player);
-    // this.cameras.main.startFollow(this.player);
-    this.cameras.main.setBackgroundColor("#ccddff");
     this.cameras.main.roundPixels = true;
 
     // ================
@@ -145,7 +192,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
             (bodyB.label === "coin" && bodyA === this.player.body)
           ) {
             this.totalCoinsLife += 1;
-            this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
+            this.updateHp();
             const coinBody = bodyA === this.player.body ? bodyB : bodyA;
             this.coins = this.coins.filter(coin => {
               if (coin.body === coinBody) {
@@ -169,12 +216,14 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
               const collidedBody = bodyA.isStatic ? bodyB : bodyA;
 
               const currentY = collidedBody.position.y;
-              const flyDelta = Math.floor(Math.abs(this.heroFlyHeight - currentY));
+              const flyDelta = Math.floor(
+                Math.abs(this.heroFlyHeight - currentY)
+              );
 
               const lifeLost = Math.floor(flyDelta / 300);
 
               this.totalCoinsLife -= lifeLost;
-              this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
+              this.updateHp();
 
               this.heroFlyHeight = currentY;
             } else if (Phaser.Math.Vector2.LEFT.dot(collisionNormal) > 0.8) {
@@ -213,6 +262,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
 
   public update(time: number, delta: number): void {
+    this.cloudsBack.tilePositionX += 0.1;
+
     let oldVelocityX: number;
     let targetVelocityX: number;
     let newVelocityX: number;
@@ -268,6 +319,9 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     );
 
     this.smoothCameraFollow(this.player, 0.9);
+
+    this.forestA.tilePositionX = this.cameras.main.scrollX * 0.8;
+    this.forestB.tilePositionX = this.cameras.main.scrollX * 0.9;
   }
 
   private smoothCameraFollow(target, smoothFactor = 0) {
@@ -278,5 +332,9 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     cam.scrollY =
       smoothFactor * cam.scrollY +
       (1 - smoothFactor) * (target.y - cam.height * 0.5);
+  }
+
+  private updateHp() {
+    this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
   }
 }
