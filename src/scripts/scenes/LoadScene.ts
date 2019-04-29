@@ -18,14 +18,22 @@ import coin from "../../assets/images/coin.png";
 import spikes from "../../assets/images/spikes.png";
 import flag from "../../assets/images/flag.png";
 
-import mainThemeMusic from "../../assets/music/Melody.ogg";
-import ambientThemeMusic from "../../assets/music/Ambient.ogg";
+import mainThemeMusicMp3 from "../../assets/sounds/Music.mp3";
+import mainThemeMusicOgg from "../../assets/sounds/Music.ogg";
+import ambientThemeMusicMp3 from "../../assets/sounds/Ambient.mp3";
+import ambientThemeMusicOgg from "../../assets/sounds/Ambient.ogg";
 
-import jumpSound from "../../assets/shots/Jump.ogg";
-import dropSoundA from "../../assets/shots/Drop_001.ogg";
-import dropSoundB from "../../assets/shots/Drop_002.ogg";
+import jumpSound from "../../assets/sounds/Jump_Funny_002.ogg";
+import dropSoundAMp3 from "../../assets/sounds/Drop_001.mp3";
+import dropSoundAOgg from "../../assets/sounds/Drop_001.ogg";
+import dropSoundBMp3 from "../../assets/sounds/Drop_002.mp3";
+import dropSoundBOgg from "../../assets/sounds/Drop_002.ogg";
 
-import coinSound from "../../assets/shots/Coin.ogg";
+import dropSoundCMp3 from "../../assets/sounds/Drop_easy.mp3";
+import dropSoundCOgg from "../../assets/sounds/Drop_easy.ogg";
+
+import coinSoundMp3 from "../../assets/sounds/Coin.mp3";
+import coinSoundOgg from "../../assets/shots/Coin.ogg";
 
 import deathScreen from "../../assets/images/screen_2.png";
 import winScreen from "../../assets/images/screen_3.png";
@@ -35,6 +43,8 @@ import looseOgg from "../../assets/sounds/loose2low.ogg";
 
 import winMp3 from "../../assets/sounds/Win.mp3";
 import winOgg from "../../assets/sounds/Win.ogg";
+
+import hpIcon from "../../assets/images/hp_icon.png";
 
 export class LoadingScene extends Phaser.Scene implements ILifecycle {
   constructor() {
@@ -94,16 +104,19 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     this.load.image("deathScreen", deathScreen);
     this.load.image("winScreen", winScreen);
 
-    this.load.audio("mainThemeMusic", mainThemeMusic);
-    this.load.audio("ambientThemeMusic", ambientThemeMusic);
+    this.load.audio("mainThemeMusic", [mainThemeMusicMp3, mainThemeMusicOgg]);
+    this.load.audio("ambientThemeMusic", [ambientThemeMusicMp3, ambientThemeMusicOgg]);
 
     this.load.audio("looseSound", [looseMp3, looseOgg]);
     this.load.audio("winSound", [winMp3, winOgg]);
 
     this.load.audio("jumpSound", jumpSound);
-    this.load.audio("dropSoundA", dropSoundA);
-    this.load.audio("dropSoundB", dropSoundB);
-    this.load.audio("coinSound", coinSound);
+    this.load.audio("dropSoundA", [dropSoundAMp3, dropSoundAOgg]);
+    this.load.audio("dropSoundB", [dropSoundBMp3, dropSoundAOgg]);
+    this.load.audio("dropSoundC", [dropSoundCMp3, dropSoundCOgg]);
+    this.load.audio("coinSound", [coinSoundMp3, coinSoundOgg]);
+
+    this.load.image("hpIcon", hpIcon);
   }
 
   public create(): void {

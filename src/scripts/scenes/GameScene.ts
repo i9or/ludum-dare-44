@@ -34,6 +34,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   private winLayer: Phaser.GameObjects.GameObject[];
   private wins: Phaser.Physics.Matter.Sprite[] = [];
   private looses: Phaser.Physics.Matter.Sprite[] = [];
+  healthBar: any;
+  dropSoundC: Phaser.Sound.BaseSound;
 
   constructor() {
     super({
@@ -50,7 +52,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   public create(): void {
     this.music = this.sound.add("mainThemeMusic");
     this.music.play("", {
-      loop: true
+      loop: true,
+      volume: 0.5
     });
 
     this.ambient = this.sound.add("ambientThemeMusic");
@@ -61,6 +64,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.jumpSound = this.sound.add("jumpSound");
     this.dropSoundA = this.sound.add("dropSoundA");
     this.dropSoundB = this.sound.add("dropSoundB");
+    this.dropSoundC = this.sound.add("dropSoundC");
 
     this.coinSound = this.sound.add("coinSound");
 
@@ -130,8 +134,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.map.widthInPixels,
       this.map.heightInPixels + 500
     );
-    world.createDebugGraphic();
-    world.drawDebug = true;
+    // world.createDebugGraphic();
+    // world.drawDebug = true;
 
     this.heroFlyHeight = this.map.heightInPixels;
 
@@ -278,6 +282,9 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.cameras.main.roundPixels = true;
     this.cameras.main.fadeIn(3000);
 
+    const hpIcon = this.add.image(60 , 68, "hpIcon");
+    hpIcon.setScrollFactor(0);
+
     // ================
     // COLLISION EVENTS
     // ================
@@ -359,6 +366,10 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
               this.totalCoinsLife -= lifeLost;
               this.updateHp();
 
+              if (lifeLost === 1) {
+                this.dropSoundC.play();
+              }
+
               if (lifeLost > 1) {
                 this.player.anims.play("smash", true);
                 if (this.totalCoinsLife > 0) {
@@ -392,19 +403,19 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     );
 
     this.totalCoinsLifeText = this.add.text(
-      20,
-      30,
+      120,
+      40,
       `HP: ${this.totalCoinsLife}`,
       {
-        fontSize: "40px",
-        fill: "#333333"
+        fontSize: "50px Time New Roman",
+        fill: "#efefef"
       }
     );
 
     this.totalCoinsLifeText.setScrollFactor(0);
 
     // TODO: remove
-    this.line = this.add.graphics();
+    // this.line = this.add.graphics();
 
     this.input.addDownCallback(function() {
       if (this.game.sound.context.state === "suspended") {
@@ -415,6 +426,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     if (this.game.sound.context.state === "suspended") {
       this.game.sound.context.resume();
     }
+
+    // this.healthBar = this.add.graphics();
   }
 
   public winCondition() {
@@ -495,14 +508,14 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.forestA.tilePositionX = this.cameras.main.scrollX * 0.8;
     this.forestB.tilePositionX = this.cameras.main.scrollX * 0.9;
 
-    this.line.clear();
-    this.line.lineStyle(2, 0xff0000);
-    this.line.lineBetween(
-      this.player.body.position.x,
-      this.player.body.position.y,
-      this.player.body.position.x + this.player.body.velocity.x * 10,
-      this.player.body.position.y + this.player.body.velocity.y * 10
-    );
+    // this.line.clear();
+    // this.line.lineStyle(2, 0xff0000);
+    // this.line.lineBetween(
+    //   this.player.body.position.x,
+    //   this.player.body.position.y,
+    //   this.player.body.position.x + this.player.body.velocity.x * 10,
+    //   this.player.body.position.y + this.player.body.velocity.y * 10
+    // );
 
     if (!this.playerState.blocked.bottom) {
       const vel = new Phaser.Math.Vector2(this.player.body.velocity);
@@ -529,11 +542,11 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
   private updateHp() {
     if (this.totalCoinsLife > 0) {
-      this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
+      this.totalCoinsLifeText.setText(`${this.totalCoinsLife}`);
     } else {
       // Go to death scene
       this.player.anims.play("dead", true);
-      this.totalCoinsLifeText.setText(`HP: 0`);
+      this.totalCoinsLifeText.setText(`0`);
       this.music.stop();
       this.ambient.stop();
       this.scene.start("DeathScene");
