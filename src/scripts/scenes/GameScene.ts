@@ -42,14 +42,14 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
   public create(): void {
     this.music = this.sound.add("mainThemeMusic");
-    // this.music.play("", {
-    //   loop: true
-    // });
+    this.music.play("", {
+      loop: true
+    });
 
     this.ambient = this.sound.add("ambientThemeMusic");
-    // this.ambient.play("", {
-    //   loop: true
-    // });
+    this.ambient.play("", {
+      loop: true
+    });
 
     this.jumpSound = this.sound.add("jumpSound");
     this.dropSoundA = this.sound.add("dropSoundA");
@@ -120,8 +120,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.map.widthInPixels,
       this.map.heightInPixels + 500
     );
-    // world.createDebugGraphic();
-    // world.drawDebug = true;
+    world.createDebugGraphic();
+    world.drawDebug = true;
 
     this.heroFlyHeight = this.map.heightInPixels;
 
