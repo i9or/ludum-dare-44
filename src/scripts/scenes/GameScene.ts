@@ -398,6 +398,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     } else {
       // Go to death scene
       this.totalCoinsLifeText.setText(`HP: 0`);
+      this.music.stop();
+      this.ambient.stop();
       this.scene.start("DeathScene");
     }
   }
