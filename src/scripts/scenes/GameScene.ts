@@ -30,6 +30,10 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   private spikesLayer: Phaser.GameObjects.GameObject[];
   private spikes: Phaser.Physics.Matter.Sprite[] = [];
   private line: Phaser.GameObjects.Graphics;
+  private looseLayer: Phaser.GameObjects.GameObject[];
+  private winLayer: Phaser.GameObjects.GameObject[];
+  private wins: Phaser.Physics.Matter.Sprite[] = [];
+  private looses: Phaser.Physics.Matter.Sprite[] = [];
 
   constructor() {
     super({
@@ -40,7 +44,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
 
   public preload(): void {
-    this.totalCoinsLife = 5;
+    this.totalCoinsLife = 9;
   }
 
   public create(): void {
@@ -115,6 +119,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     this.coinsLayer = this.map.getObjectLayer("Coins").objects;
     this.spikesLayer = this.map.getObjectLayer("Spikes").objects;
+    this.winLayer = this.map.getObjectLayer("Win").objects;
+    this.looseLayer = this.map.getObjectLayer("Loose").objects;
 
     const world = this.matter.world.convertTilemapLayer(this.groundLayer);
 
@@ -135,7 +141,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
         coin.y - 32,
         "coin"
       );
-      singleCoin.setRectangle(50, 64, {
+      singleCoin.setRectangle(60, 64, {
         label: "coin",
         isSensor: true
       });
@@ -159,6 +165,38 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       singleSpike.setIgnoreGravity(true);
       singleSpike.setDisplayOrigin(64, 96);
       this.spikes.push(singleSpike);
+    });
+
+    this.winLayer.forEach((win: any) => {
+      const singleWin = this.matter.add.sprite(
+        win.x + 112,
+        win.y - 155,
+        "flag"
+      );
+      singleWin.setCircle(60, {
+        label: "win",
+        isSensor: true
+      });
+
+      singleWin.setIgnoreGravity(true);
+      singleWin.setDisplayOrigin(120, 100);
+      this.wins.push(singleWin);
+    });
+
+    this.looseLayer.forEach((loose: any) => {
+      const singleLoose = this.matter.add.sprite(
+        loose.x + 64,
+        loose.y - 0,
+        "alphaPixel"
+      );
+      singleLoose.setRectangle(128, 10, {
+        label: "loose",
+        isSensor: true
+      });
+
+      singleLoose.setIgnoreGravity(true);
+      singleLoose.setDisplayOrigin(64, 96);
+      this.looses.push(singleLoose);
     });
 
     this.playerState = {
@@ -286,6 +324,19 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
             this.player.setVelocityY(-(this.playerState.speed.jump + 3));
             continue;
           } else if (
+            (bodyA.label === "loose" && bodyB === this.player.body) ||
+            (bodyB.label === "loose" && bodyA === this.player.body)
+          ) {
+            this.totalCoinsLife = 0;
+            this.updateHp();
+            continue;
+          } else if (
+            (bodyA.label === "win" && bodyB === this.player.body) ||
+            (bodyB.label === "win" && bodyA === this.player.body)
+          ) {
+            this.winCondition();
+            continue;
+          } else if (
             (bodyA === this.player.body && bodyB.isStatic) ||
             (bodyB === this.player.body && bodyA.isStatic)
           ) {
@@ -363,6 +414,12 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     if (this.game.sound.context.state === "suspended") {
       this.game.sound.context.resume();
     }
+  }
+
+  public winCondition() {
+    this.music.stop();
+    this.ambient.stop();
+    this.scene.start("WinScene");
   }
 
   public update(time: number, delta: number): void {

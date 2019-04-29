@@ -3,6 +3,7 @@ import { LoadingScene } from "./scenes/LoadScene";
 import { MainMenuScene } from "./scenes/MainMenuScene";
 import { GameScene } from "./scenes/GameScene";
 import { DeathScene } from "./scenes/DeathScene";
+import { WinScene } from "./scenes/WinScene";
 
 const config: GameConfig = {
   width: 1280,
@@ -22,6 +23,7 @@ const config: GameConfig = {
     MainMenuScene,
     GameScene,
     DeathScene,
+    WinScene
   ]
 };
 
