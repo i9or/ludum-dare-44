@@ -25,6 +25,9 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   private dropSoundB: Phaser.Sound.BaseSound;
   private coinSound: Phaser.Sound.BaseSound;
 
+  private startX = 1400;
+  private startY = 1700;
+
   constructor() {
     super({
       key: "GameScene"
@@ -34,7 +37,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
 
   public preload(): void {
-    this.totalCoinsLife = 1;
+    this.totalCoinsLife = 5;
   }
 
   public create(): void {
@@ -102,7 +105,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     this.forestB.setScrollFactor(0, 1);
 
-    this.tileset = this.map.addTilesetImage("spritesheet", "spritesheet");
+    this.tileset = this.map.addTilesetImage("tilesheet", "spritesheet");
 
     this.groundLayer = this.map.createDynamicLayer("World", this.tileset, 0, 0);
     this.map.setCollisionFromCollisionGroup(true, true);
@@ -117,8 +120,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.map.widthInPixels,
       this.map.heightInPixels + 500
     );
-    world.createDebugGraphic();
-    world.drawDebug = true;
+    // world.createDebugGraphic();
+    // world.drawDebug = true;
 
     this.heroFlyHeight = this.map.heightInPixels;
 
@@ -171,7 +174,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.player.setExistingBody(playerBody);
     // this.player.setBounce(0.2);
     this.player.setMass(9);
-    this.player.setPosition(1400, 100);
+    this.player.setPosition(this.startX, this.startY);
 
     // KEYBOARD
     this.keys = this.input.keyboard.createCursorKeys();
@@ -288,6 +291,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     this.totalCoinsLifeText.setScrollFactor(0);
 
+    // TODO: remove
     this.line = this.add.graphics();
 
     this.input.addDownCallback(function() {

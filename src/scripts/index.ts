@@ -14,7 +14,7 @@ const config: GameConfig = {
     matter: {
       gravity: { y: 1 },
       enableSleep: false,
-      debug: true
+      // debug: true
     }
   },
   scene: [

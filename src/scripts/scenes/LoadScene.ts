@@ -9,7 +9,7 @@ import backgroundA from "../../assets/images/bg_forest_back.png";
 import backgroundB from "../../assets/images/bg_forest_front.png";
 
 import world1 from "../../assets/tiles/world2.json";
-import spritesheet from "../../assets/images/spritesheet.png";
+import tilesheet from "../../assets/images/tilesheet.png";
 
 import hero from "../../assets/images/hero.png";
 import coin from "../../assets/images/coin.png";
@@ -57,7 +57,7 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     this.load.image("backgroundClouds", backgroundClouds);
     this.load.image("forestA", backgroundA);
     this.load.image("forestB", backgroundB);
-    this.load.spritesheet("spritesheet", spritesheet, {
+    this.load.spritesheet("spritesheet", tilesheet, {
       frameWidth: 128,
       frameHeight: 128
     });
