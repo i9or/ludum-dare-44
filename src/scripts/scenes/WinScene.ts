@@ -11,25 +11,23 @@ export class WinScene extends Phaser.Scene implements ILifecycle {
   public preload(): void {}
 
   public create(): void {
-    const deathText = this.add.text(
+    const winSound = this.sound.add("winSound");
+    winSound.play();
+
+    const winImage = this.add.image(
       this.cameras.main.width / 2,
       this.cameras.main.height / 2,
-      "YOU WIN",
-      {
-        fontSize: "100px Tahoma",
-        fill: "#aa0000"
-      }
+      "winScreen"
     );
 
-    deathText.setOriginFromFrame();
-    deathText.setScrollFactor(0);
+    winImage.setScrollFactor(0);
 
     this.cameras.main.fadeIn(600);
     this.cameras.main.centerOn(0, 0);
 
-    this.input.keyboard.on("keydown", (eventName, event) => {
-      this.scene.start("GameScene");
-    });
+    // this.input.keyboard.on("keydown", (eventName, event) => {
+    //   this.scene.start("GameScene");
+    // });
   }
 
   public update(time: number, delta: number): void {

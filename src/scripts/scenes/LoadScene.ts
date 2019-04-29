@@ -28,9 +28,13 @@ import dropSoundB from "../../assets/shots/Drop_002.ogg";
 import coinSound from "../../assets/shots/Coin.ogg";
 
 import deathScreen from "../../assets/images/screen_2.png";
+import winScreen from "../../assets/images/screen_3.png";
 
 import looseMp3 from "../../assets/sounds/loose2low.mp3";
 import looseOgg from "../../assets/sounds/loose2low.ogg";
+
+import winMp3 from "../../assets/sounds/Win.mp3";
+import winOgg from "../../assets/sounds/Win.ogg";
 
 export class LoadingScene extends Phaser.Scene implements ILifecycle {
   constructor() {
@@ -88,11 +92,13 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     this.load.image("spikes", spikes);
     this.load.image("flag", flag);
     this.load.image("deathScreen", deathScreen);
+    this.load.image("winScreen", winScreen);
 
     this.load.audio("mainThemeMusic", mainThemeMusic);
     this.load.audio("ambientThemeMusic", ambientThemeMusic);
 
     this.load.audio("looseSound", [looseMp3, looseOgg]);
+    this.load.audio("winSound", [winMp3, winOgg]);
 
     this.load.audio("jumpSound", jumpSound);
     this.load.audio("dropSoundA", dropSoundA);
