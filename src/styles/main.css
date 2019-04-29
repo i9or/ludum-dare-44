@@ -1,10 +1,17 @@
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   background-color: black;
+  margin: 0;
+  padding: 0;
 }
 
 #content {
-  display: block;
+  display: flex;
   width: 100%;
-  text-align: center;
-  border: 1px solid gold;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
 }

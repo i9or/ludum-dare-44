@@ -18,7 +18,12 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   private heroFlyHeight: any;
   private cloudsBack: Phaser.GameObjects.TileSprite;
   private forestA: Phaser.GameObjects.TileSprite;
-  forestB: Phaser.GameObjects.TileSprite;
+  private forestB: Phaser.GameObjects.TileSprite;
+  private ambient: Phaser.Sound.BaseSound;
+  private jumpSound: Phaser.Sound.BaseSound;
+  private dropSoundA: Phaser.Sound.BaseSound;
+  private dropSoundB: Phaser.Sound.BaseSound;
+  private coinSound: Phaser.Sound.BaseSound;
 
   constructor() {
     super({
@@ -35,10 +40,21 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
 
   public create(): void {
-    this.music = this.sound.add("mainTheme");
-    // this.music.play("", {
-    //   loop: true
-    // });
+    this.music = this.sound.add("mainThemeMusic");
+    this.music.play("", {
+      loop: true
+    });
+
+    this.ambient = this.sound.add("ambientThemeMusic");
+    this.ambient.play("", {
+      loop: true
+    });
+
+    this.jumpSound = this.sound.add("jumpSound");
+    this.dropSoundA = this.sound.add("dropSoundA");
+    this.dropSoundB = this.sound.add("dropSoundB");
+
+    this.coinSound = this.sound.add("coinSound");
 
     this.map = this.make.tilemap({
       key: "world1"
@@ -54,7 +70,6 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     const camH = this.cameras.main.height;
 
     const skyImage = this.add.image(1280 / 2, 720 / 2, "backgroundZero");
-    // skyImage.setDisplaySize(this.map.widthInPixels, this.map.heightInPixels);
     skyImage.setScrollFactor(0);
 
     const cloudsW = 1280;
@@ -150,10 +165,10 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     this.player = this.matter.add.sprite(0, 0, "hero");
 
-    this.player.setBounce(1);
     this.player.setExistingBody(playerBody);
+    // this.player.setBounce(0.2);
     this.player.setMass(9);
-    this.player.setPosition(850, 1700);
+    this.player.setPosition(1400, 1700);
 
     // KEYBOARD
     this.keys = this.input.keyboard.createCursorKeys();
@@ -166,6 +181,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     );
     this.smoothCameraFollow(this.player);
     this.cameras.main.roundPixels = true;
+    this.cameras.main.fadeIn(3000);
 
     // ================
     // COLLISION EVENTS
@@ -197,6 +213,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
             this.coins = this.coins.filter(coin => {
               if (coin.body === coinBody) {
                 coin.destroy();
+                this.coinSound.play();
                 return false;
               }
 
@@ -220,10 +237,18 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
                 Math.abs(this.heroFlyHeight - currentY)
               );
 
-              const lifeLost = Math.floor(flyDelta / 300);
+              const lifeLost = Math.floor(flyDelta / 200);
 
               this.totalCoinsLife -= lifeLost;
               this.updateHp();
+
+              if (lifeLost > 0) {
+                if (this.totalCoinsLife > 0) {
+                this.dropSoundA.play();
+                } else {
+                  this.dropSoundB.play();
+                }
+              }
 
               this.heroFlyHeight = currentY;
             } else if (Phaser.Math.Vector2.LEFT.dot(collisionNormal) > 0.8) {
@@ -302,14 +327,23 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       if (this.playerState.blocked.bottom && jumpDelta > 250) {
         this.player.setVelocityY(-this.playerState.speed.jump);
         this.playerState.lastJumpedAt = time;
+        this.jumpSound.play("", {
+          volume: 0.6
+        });
       } else if (this.playerState.blocked.left && jumpDelta > 900) {
         this.player.setVelocityY(-this.playerState.speed.jump);
         this.player.setVelocityX(this.playerState.speed.run + 3);
         this.playerState.lastJumpedAt = time;
+        this.jumpSound.play("", {
+          volume: 0.6
+        });
       } else if (this.playerState.blocked.right && jumpDelta > 900) {
         this.player.setVelocityY(-this.playerState.speed.jump);
         this.player.setVelocityX(-(this.playerState.speed.run + 3));
         this.playerState.lastJumpedAt = time;
+        this.jumpSound.play("", {
+          volume: 0.6
+        });
       }
     }
 

@@ -14,7 +14,14 @@ import spritesheet from "../../assets/images/spritesheet.png";
 import hero from "../../assets/images/hero.png";
 import coin from "../../assets/images/coin.png";
 
-import mainThemeMp3 from "../../assets/music/345838__shadydave__abstract-ambient-loop.mp3";
+import mainThemeMusic from "../../assets/music/Melody.ogg";
+import ambientThemeMusic from "../../assets/music/Ambient.ogg";
+
+import jumpSound from "../../assets/shots/Jump.ogg";
+import dropSoundA from "../../assets/shots/Drop_001.ogg";
+import dropSoundB from "../../assets/shots/Drop_002.ogg";
+
+import coinSound from "../../assets/shots/Coin.ogg";
 
 export class LoadingScene extends Phaser.Scene implements ILifecycle {
   constructor() {
@@ -59,7 +66,13 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
 
     this.load.image("coin", coin);
 
-    this.load.audio("mainTheme", mainThemeMp3);
+    this.load.audio("mainThemeMusic", mainThemeMusic);
+    this.load.audio("ambientThemeMusic", ambientThemeMusic);
+
+    this.load.audio("jumpSound", jumpSound);
+    this.load.audio("dropSoundA", dropSoundA);
+    this.load.audio("dropSoundB", dropSoundB);
+    this.load.audio("coinSound", coinSound);
   }
 
   public create(): void {
