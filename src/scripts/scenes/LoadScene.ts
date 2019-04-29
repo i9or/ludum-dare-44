@@ -27,6 +27,11 @@ import dropSoundB from "../../assets/shots/Drop_002.ogg";
 
 import coinSound from "../../assets/shots/Coin.ogg";
 
+import deathScreen from "../../assets/images/screen_2.png";
+
+import looseMp3 from "../../assets/sounds/loose2low.mp3";
+import looseOgg from "../../assets/sounds/loose2low.ogg";
+
 export class LoadingScene extends Phaser.Scene implements ILifecycle {
   constructor() {
     super({
@@ -35,16 +40,22 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
   }
 
   public preload(): void {
+    const loadScreen = this.add.image(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      "loadScreen"
+    );
+
     const progress = this.add.graphics();
 
     this.load.on("progress", (value: number) => {
       progress.clear();
-      progress.fillStyle(0xbada55, 1);
+      progress.fillStyle(0xeac235, 1);
       progress.fillRect(
-        0,
-        (this.sys.game.config.height as number) / 2,
-        (this.sys.game.config.width as number) * value,
-        60
+        40,
+        (this.sys.game.config.height as number) / 2 + 224,
+        (this.sys.game.config.width as number) * value - 80,
+        10
       );
     });
 
@@ -76,9 +87,12 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     this.load.image("coin", coin);
     this.load.image("spikes", spikes);
     this.load.image("flag", flag);
+    this.load.image("deathScreen", deathScreen);
 
     this.load.audio("mainThemeMusic", mainThemeMusic);
     this.load.audio("ambientThemeMusic", ambientThemeMusic);
+
+    this.load.audio("looseSound", [looseMp3, looseOgg]);
 
     this.load.audio("jumpSound", jumpSound);
     this.load.audio("dropSoundA", dropSoundA);

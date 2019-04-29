@@ -19,8 +19,8 @@ const config: GameConfig = {
     }
   },
   scene: [
-    LoadingScene,
     MainMenuScene,
+    LoadingScene,
     GameScene,
     DeathScene,
     WinScene

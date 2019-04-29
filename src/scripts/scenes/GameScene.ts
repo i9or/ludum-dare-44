@@ -320,6 +320,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
             (bodyB.label === "spikes" && bodyA === this.player.body)
           ) {
             this.totalCoinsLife -= 1;
+            this.dropSoundB.play();
             this.updateHp();
             this.player.setVelocityY(-(this.playerState.speed.jump + 3));
             continue;
