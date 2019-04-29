@@ -15,6 +15,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   private totalCoinsLifeText: Phaser.GameObjects.Text;
   private coinsLayer: Phaser.GameObjects.GameObject[];
   private coins: Phaser.Physics.Matter.Sprite[] = [];
+  private heroFlyHeight: any;
 
   constructor() {
     super({
@@ -51,6 +52,8 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
     world.createDebugGraphic();
     world.drawDebug = true;
+
+    this.heroFlyHeight = this.map.heightInPixels;
 
     this.coinsLayer.forEach((coin: any) => {
       const singleCoin = this.matter.add.sprite(
@@ -91,16 +94,17 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     };
 
     const playerBody = Phaser.Physics.Matter.Matter.Bodies.circle(0, 0, 32, {
-      friction: 0.3,
-      restitution: 0.09
+      friction: 0.4,
+      restitution: 0.09,
+      label: "hero"
     });
 
     this.player = this.matter.add.sprite(0, 0, "hero");
 
-    this.player.setBounce(0.7);
+    this.player.setBounce(1);
     this.player.setExistingBody(playerBody);
-    this.player.setMass(10);
-    this.player.setPosition(250, 1300);
+    this.player.setMass(9);
+    this.player.setPosition(250, 100);
 
     // KEYBOARD
     this.keys = this.input.keyboard.createCursorKeys();
@@ -162,6 +166,17 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
             if (Phaser.Math.Vector2.DOWN.dot(collisionNormal) > epsilon) {
               this.playerState.numTouching.bottom += 1;
+              const collidedBody = bodyA.isStatic ? bodyB : bodyA;
+
+              const currentY = collidedBody.position.y;
+              const flyDelta = Math.floor(Math.abs(this.heroFlyHeight - currentY));
+
+              const lifeLost = Math.floor(flyDelta / 300);
+
+              this.totalCoinsLife -= lifeLost;
+              this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
+
+              this.heroFlyHeight = currentY;
             } else if (Phaser.Math.Vector2.LEFT.dot(collisionNormal) > 0.8) {
               this.playerState.numTouching.left += 1;
             } else if (Phaser.Math.Vector2.RIGHT.dot(collisionNormal) > 0.8) {
@@ -246,6 +261,11 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
         this.playerState.lastJumpedAt = time;
       }
     }
+
+    this.heroFlyHeight = Math.min(
+      this.heroFlyHeight,
+      this.player.body.position.y
+    );
 
     this.smoothCameraFollow(this.player, 0.9);
   }
