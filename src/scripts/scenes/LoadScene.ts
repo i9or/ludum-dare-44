@@ -12,6 +12,7 @@ import world1 from "../../assets/tiles/world2.json";
 import tilesheet from "../../assets/images/tilesheet.png";
 
 import hero from "../../assets/images/hero.png";
+import heroSet from "../../assets/images/hero_set.png";
 import coin from "../../assets/images/coin.png";
 
 import mainThemeMusic from "../../assets/music/Melody.ogg";
@@ -58,6 +59,11 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     this.load.image("forestA", backgroundA);
     this.load.image("forestB", backgroundB);
     this.load.spritesheet("spritesheet", tilesheet, {
+      frameWidth: 128,
+      frameHeight: 128
+    });
+
+    this.load.spritesheet("heroSet", heroSet, {
       frameWidth: 128,
       frameHeight: 128
     });

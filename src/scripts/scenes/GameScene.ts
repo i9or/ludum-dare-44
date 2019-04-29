@@ -169,12 +169,43 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       label: "hero"
     });
 
-    this.player = this.matter.add.sprite(0, 0, "hero");
+    this.player = this.matter.add.sprite(0, 0, "heroSet", 3);
 
     this.player.setExistingBody(playerBody);
     // this.player.setBounce(0.2);
     this.player.setMass(9);
     this.player.setPosition(this.startX, this.startY);
+
+    this.anims.create({
+      key: "normal",
+      frames: this.anims.generateFrameNumbers("heroSet", { start: 3, end: 3 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    this.anims.create({
+      key: "flyUp",
+      frames: this.anims.generateFrameNumbers("heroSet", { start: 0, end: 0 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    this.anims.create({
+      key: "flyDown",
+      frames: this.anims.generateFrameNumbers("heroSet", { start: 2, end: 2 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    this.anims.create({
+      key: "smash",
+      frames: this.anims.generateFrameNumbers("heroSet", { start: 4, end: 4 }),
+      frameRate: 1,
+      repeat: -1
+    });
+    this.anims.create({
+      key: "dead",
+      frames: this.anims.generateFrameNumbers("heroSet", { start: 1, end: 1 }),
+      frameRate: 10,
+      repeat: -1
+    });
 
     // KEYBOARD
     this.keys = this.input.keyboard.createCursorKeys();
@@ -249,6 +280,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
               this.updateHp();
 
               if (lifeLost > 1) {
+                this.player.anims.play("smash", true);
                 if (this.totalCoinsLife > 0) {
                   this.dropSoundA.play();
                 } else {
@@ -299,6 +331,10 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
         this.game.sound.context.resume();
       }
     });
+
+    if (this.game.sound.context.state === "suspended") {
+      this.game.sound.context.resume();
+    }
   }
 
   public update(time: number, delta: number): void {
@@ -334,6 +370,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.player.setVelocityX(newVelocityX);
     } else {
       this.smoothControls.reset();
+      this.player.anims.play("normal", true);
     }
 
     const jumpDelta = time - this.playerState.lastJumpedAt;
@@ -380,6 +417,18 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.player.body.position.x + this.player.body.velocity.x * 10,
       this.player.body.position.y + this.player.body.velocity.y * 10
     );
+
+    if (!this.playerState.blocked.bottom) {
+      const vel = new Phaser.Math.Vector2(this.player.body.velocity);
+      const dir = Phaser.Math.Vector2.UP.dot(vel.normalize());
+      if (dir > 0.7) {
+        this.player.anims.play("flyUp", true);
+      }
+
+      if (dir < -0.7) {
+        this.player.anims.play("flyDown", true);
+      }
+    }
   }
 
   private smoothCameraFollow(target, smoothFactor = 0) {
