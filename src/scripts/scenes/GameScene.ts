@@ -27,6 +27,9 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
   private startX = 1400;
   private startY = 1700;
+  private spikesLayer: Phaser.GameObjects.GameObject[];
+  private spikes: Phaser.Physics.Matter.Sprite[] = [];
+  private line: Phaser.GameObjects.Graphics;
 
   constructor() {
     super({
@@ -111,6 +114,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.map.setCollisionFromCollisionGroup(true, true);
 
     this.coinsLayer = this.map.getObjectLayer("Coins").objects;
+    this.spikesLayer = this.map.getObjectLayer("Spikes").objects;
 
     const world = this.matter.world.convertTilemapLayer(this.groundLayer);
 
@@ -139,6 +143,22 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       singleCoin.setIgnoreGravity(true);
       singleCoin.setDisplayOrigin(64, 96);
       this.coins.push(singleCoin);
+    });
+
+    this.spikesLayer.forEach((spike: any) => {
+      const singleSpike = this.matter.add.sprite(
+        spike.x + 64,
+        spike.y - 32,
+        "spikes"
+      );
+      singleSpike.setRectangle(128, 35, {
+        label: "spikes",
+        isSensor: true
+      });
+
+      singleSpike.setIgnoreGravity(true);
+      singleSpike.setDisplayOrigin(64, 96);
+      this.spikes.push(singleSpike);
     });
 
     this.playerState = {
@@ -256,6 +276,14 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
               return true;
             });
+            continue;
+          } else if (
+            (bodyA.label === "spikes" && bodyB === this.player.body) ||
+            (bodyB.label === "spikes" && bodyA === this.player.body)
+          ) {
+            this.totalCoinsLife -= 1;
+            this.updateHp();
+            this.player.setVelocityY(-(this.playerState.speed.jump + 3));
             continue;
           } else if (
             (bodyA === this.player.body && bodyB.isStatic) ||
@@ -446,6 +474,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
     } else {
       // Go to death scene
+      this.player.anims.play("dead", true);
       this.totalCoinsLifeText.setText(`HP: 0`);
       this.music.stop();
       this.ambient.stop();

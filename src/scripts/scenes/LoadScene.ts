@@ -13,7 +13,9 @@ import tilesheet from "../../assets/images/tilesheet.png";
 
 import hero from "../../assets/images/hero.png";
 import heroSet from "../../assets/images/hero_set.png";
+
 import coin from "../../assets/images/coin.png";
+import spikes from "../../assets/images/spikes.png";
 
 import mainThemeMusic from "../../assets/music/Melody.ogg";
 import ambientThemeMusic from "../../assets/music/Ambient.ogg";
@@ -71,6 +73,7 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     this.load.image("hero", hero);
 
     this.load.image("coin", coin);
+    this.load.image("spikes", spikes);
 
     this.load.audio("mainThemeMusic", mainThemeMusic);
     this.load.audio("ambientThemeMusic", ambientThemeMusic);
