@@ -11,6 +11,7 @@ import world1 from "../../assets/tiles/world2.json";
 import spritesheet from "../../assets/images/spritesheet.png";
 
 import hero from "../../assets/images/hero.png";
+import coin from "../../assets/images/coin.png";
 
 import mainThemeMp3 from "../../assets/music/345838__shadydave__abstract-ambient-loop.mp3";
 
@@ -53,6 +54,8 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     });
 
     this.load.image("hero", hero);
+
+    this.load.image("coin", coin);
 
     this.load.audio("mainTheme", mainThemeMp3);
   }

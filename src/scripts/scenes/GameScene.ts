@@ -11,6 +11,10 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   public keys: Phaser.Input.Keyboard.CursorKeys;
   public playerState: any;
   private smoothControls: SmoothHorizontalControl;
+  private totalCoinsLife: number;
+  private totalCoinsLifeText: Phaser.GameObjects.Text;
+  private coinsLayer: Phaser.GameObjects.GameObject[];
+  private coins: Phaser.Physics.Matter.Sprite[] = [];
 
   constructor() {
     super({
@@ -18,6 +22,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     });
 
     this.smoothControls = new SmoothHorizontalControl(0.0005);
+    this.totalCoinsLife = 9;
   }
 
   public preload(): void {
@@ -36,14 +41,32 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     });
     this.tileset = this.map.addTilesetImage("spritesheet", "spritesheet");
 
-    this.groundLayer = this.map.createDynamicLayer(0, this.tileset, 0, 0);
+    this.groundLayer = this.map.createDynamicLayer("World", this.tileset, 0, 0);
     this.map.setCollisionFromCollisionGroup(true, true);
+
+    this.coinsLayer = this.map.getObjectLayer("Coins").objects;
 
     const world = this.matter.world.convertTilemapLayer(this.groundLayer);
 
     world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
     world.createDebugGraphic();
     world.drawDebug = true;
+
+    this.coinsLayer.forEach((coin: any) => {
+      const singleCoin = this.matter.add.sprite(
+        coin.x + 64,
+        coin.y - 32,
+        "coin"
+      );
+      singleCoin.setRectangle(50, 64, {
+        label: "coin",
+        isSensor: true
+      });
+
+      singleCoin.setIgnoreGravity(true);
+      singleCoin.setDisplayOrigin(64, 96);
+      this.coins.push(singleCoin);
+    });
 
     this.playerState = {
       blocked: {
@@ -114,6 +137,22 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
           const bodyB = event.pairs[i].bodyB;
 
           if (
+            (bodyA.label === "coin" && bodyB === this.player.body) ||
+            (bodyB.label === "coin" && bodyA === this.player.body)
+          ) {
+            this.totalCoinsLife += 1;
+            this.totalCoinsLifeText.setText(`HP: ${this.totalCoinsLife}`);
+            const coinBody = bodyA === this.player.body ? bodyB : bodyA;
+            this.coins = this.coins.filter(coin => {
+              if (coin.body === coinBody) {
+                coin.destroy();
+                return false;
+              }
+
+              return true;
+            });
+            continue;
+          } else if (
             (bodyA === this.player.body && bodyB.isStatic) ||
             (bodyB === this.player.body && bodyA.isStatic)
           ) {
@@ -144,12 +183,24 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
           this.playerState.numTouching.bottom > 0 ? true : false;
       }
     );
+
+    this.totalCoinsLifeText = this.add.text(
+      20,
+      30,
+      `HP: ${this.totalCoinsLife}`,
+      {
+        fontSize: "40px",
+        fill: "#333333"
+      }
+    );
+
+    this.totalCoinsLifeText.setScrollFactor(0);
   }
 
   public update(time: number, delta: number): void {
-    let oldVelocityX;
-    let targetVelocityX;
-    let newVelocityX;
+    let oldVelocityX: number;
+    let targetVelocityX: number;
+    let newVelocityX: number;
 
     if (this.keys.left.isDown && !this.playerState.blocked.left) {
       this.smoothControls.moveLeft(delta);
@@ -185,13 +236,13 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
       if (this.playerState.blocked.bottom && jumpDelta > 250) {
         this.player.setVelocityY(-this.playerState.speed.jump);
         this.playerState.lastJumpedAt = time;
-      } else if (this.playerState.blocked.left && jumpDelta > 1000) {
+      } else if (this.playerState.blocked.left && jumpDelta > 900) {
         this.player.setVelocityY(-this.playerState.speed.jump);
-        this.player.setVelocityX(this.playerState.speed.run);
+        this.player.setVelocityX(this.playerState.speed.run + 3);
         this.playerState.lastJumpedAt = time;
-      } else if (this.playerState.blocked.right && jumpDelta > 1000) {
+      } else if (this.playerState.blocked.right && jumpDelta > 900) {
         this.player.setVelocityY(-this.playerState.speed.jump);
-        this.player.setVelocityX(-this.playerState.speed.run);
+        this.player.setVelocityX(-(this.playerState.speed.run + 3));
         this.playerState.lastJumpedAt = time;
       }
     }
@@ -201,7 +252,11 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
   private smoothCameraFollow(target, smoothFactor = 0) {
     const cam = this.cameras.main;
-    cam.scrollX = smoothFactor * cam.scrollX + (1 - smoothFactor) * (target.x - cam.width * 0.5);
-    cam.scrollY = smoothFactor * cam.scrollY + (1 - smoothFactor) * (target.y - cam.height * 0.5);
+    cam.scrollX =
+      smoothFactor * cam.scrollX +
+      (1 - smoothFactor) * (target.x - cam.width * 0.5);
+    cam.scrollY =
+      smoothFactor * cam.scrollY +
+      (1 - smoothFactor) * (target.y - cam.height * 0.5);
   }
 }
