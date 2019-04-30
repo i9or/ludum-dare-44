@@ -404,10 +404,10 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
 
     this.totalCoinsLifeText = this.add.text(
       120,
-      40,
+      48,
       `HP: ${this.totalCoinsLife}`,
       {
-        fontSize: "50px Time New Roman",
+        fontSize: "50px",
         fill: "#efefef"
       }
     );
