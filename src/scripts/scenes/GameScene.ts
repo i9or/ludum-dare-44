@@ -46,7 +46,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
   }
 
   public preload(): void {
-    this.totalCoinsLife = 1;
+    this.totalCoinsLife = 1000;
   }
 
   public create(): void {
