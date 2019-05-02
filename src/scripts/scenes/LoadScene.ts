@@ -23,7 +23,8 @@ import mainThemeMusicOgg from "../../assets/sounds/Music.ogg";
 import ambientThemeMusicMp3 from "../../assets/sounds/Ambient.mp3";
 import ambientThemeMusicOgg from "../../assets/sounds/Ambient.ogg";
 
-import jumpSound from "../../assets/sounds/Jump_Funny_002.ogg";
+import jumpSoundMp3 from "../../assets/sounds/Jump_Funny_002.mp3";
+import jumpSoundOgg from "../../assets/sounds/Jump_Funny_002.ogg";
 import dropSoundAMp3 from "../../assets/sounds/Drop_001.mp3";
 import dropSoundAOgg from "../../assets/sounds/Drop_001.ogg";
 import dropSoundBMp3 from "../../assets/sounds/Drop_002.mp3";
@@ -110,7 +111,7 @@ export class LoadingScene extends Phaser.Scene implements ILifecycle {
     this.load.audio("looseSound", [looseMp3, looseOgg]);
     this.load.audio("winSound", [winMp3, winOgg]);
 
-    this.load.audio("jumpSound", jumpSound);
+    this.load.audio("jumpSound", [jumpSoundMp3, jumpSoundOgg]);
     this.load.audio("dropSoundA", [dropSoundAMp3, dropSoundAOgg]);
     this.load.audio("dropSoundB", [dropSoundBMp3, dropSoundAOgg]);
     this.load.audio("dropSoundC", [dropSoundCMp3, dropSoundCOgg]);
