@@ -282,7 +282,7 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     this.cameras.main.roundPixels = true;
     this.cameras.main.fadeIn(3000);
 
-    const hpIcon = this.add.image(60 , 68, "hpIcon");
+    const hpIcon = this.add.image(60, 68, "hpIcon");
     hpIcon.setScrollFactor(0);
 
     // ================
@@ -417,15 +417,11 @@ export class GameScene extends Phaser.Scene implements ILifecycle {
     // TODO: remove
     // this.line = this.add.graphics();
 
-    this.input.addDownCallback(function() {
+    this.input.keyboard.on("keydown", () => {
       if (this.game.sound.context.state === "suspended") {
         this.game.sound.context.resume();
       }
     });
-
-    if (this.game.sound.context.state === "suspended") {
-      this.game.sound.context.resume();
-    }
 
     // this.healthBar = this.add.graphics();
   }
