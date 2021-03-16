@@ -1,0 +1,31 @@
+{
+  "name": "ludum-dare-44",
+  "version": "1.0.0",
+  "description": "Game for the Ludum Dare 44 Jam",
+  "main": "index.js",
+  "dependencies": {
+    "phaser": "^3.16.2"
+  },
+  "devDependencies": {
+    "gh-pages": "^2.0.1",
+    "parcel-bundler": "^1.12.3",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel ./src/index.html",
+    "build": "rm -rf ./dist && parcel build --public-url /ludum-dare-44/ ./src/index.html",
+    "deploy": "gh-pages -d ./dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/i9or/ludum-dare-44.git"
+  },
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/i9or/ludum-dare-44/issues"
+  },
+  "homepage": "https://github.com/i9or/ludum-dare-44#readme"
+}
